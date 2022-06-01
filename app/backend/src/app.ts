@@ -1,16 +1,16 @@
 import * as express from 'express';
+import UserController from './controllers/user-controller';
 
 class App {
   public app: express.Express = express();
-  // ...
+  private userController = new UserController();
 
   constructor() {
-    // ...
     this.config();
-    // ...
+    this.setupRoutes();
   }
 
-  private config():void {
+  private config(): void {
     const accessControl: express.RequestHandler = (_req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS,PUT,PATCH');
@@ -19,12 +19,15 @@ class App {
     };
 
     this.app.use(accessControl);
-    // ...
+    this.app.use(express.json());
   }
 
-  // ...
-  public start(PORT: string | number): void {
-    this.app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  private setupRoutes(): void {
+    this.app.post('/login', (req, res) => this.userController.login(req, res));
+  }
+
+  public start(port: string | number): void {
+    this.app.listen(port, () => console.log(`Server running on port ${port}`));
   }
 }
 
