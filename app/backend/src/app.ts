@@ -1,9 +1,11 @@
 import * as express from 'express';
+import TeamController from './controllers/team-controller';
 import UserController from './controllers/user-controller';
 
 class App {
   public app: express.Express = express();
   private userController = new UserController();
+  private teamController = new TeamController();
 
   constructor() {
     this.config();
@@ -25,6 +27,7 @@ class App {
   private setupRoutes(): void {
     this.app.post('/login', (req, res) => this.userController.login(req, res));
     this.app.get('/login/validate', (req, res) => this.userController.validateLogin(req, res));
+    this.app.get('/teams', (req, res) => this.teamController.findAll(req, res));
   }
 
   public start(port: string | number): void {
