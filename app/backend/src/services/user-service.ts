@@ -2,17 +2,21 @@ import * as bcrypt from 'bcryptjs';
 
 import User from '../database/models/user';
 import Token from '../util/token';
+import UnauthorizedError from '../errors/unauthorized-error';
+import BadRequestError from '../errors/bad-request';
 
 export default class UserService {
   private usersRepository = User;
 
   async login(email: string, password: string) {
+    if (!email || !password) {
+      throw new BadRequestError('All fields must be filled');
+    }
+
     const user = await this.usersRepository.findOne({ where: { email } });
 
-    if (!user) throw new Error('User not found.');
-
-    if (!bcrypt.compareSync(password, user.password)) {
-      throw new Error('Incorrect password.');
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      throw new UnauthorizedError('Incorrect email or password');
     }
 
     const responseUser = {
