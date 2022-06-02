@@ -122,5 +122,6 @@ describe('[GET] /login/validate', () => {
       .set('Authorization', token);
 
     expect(role).to.equal(user.role);
+    (User.findOne as sinon.SinonStub).restore();
   });
 });
