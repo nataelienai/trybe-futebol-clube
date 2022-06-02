@@ -3,12 +3,11 @@ import * as sinon from 'sinon';
 import * as chai from 'chai';
 // @ts-ignore
 import chaiHttp = require('chai-http');
-import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 
 import { app } from '../app';
 import User from '../database/models/user';
-import jwtSecret from '../util/jwtSecret';
+import Token from '../util/token';
 
 chai.use(chaiHttp);
 
@@ -35,7 +34,7 @@ describe('[POST] /login', () => {
     expect(user?.role).to.equal('admin');
     expect(user?.email).to.equal('admin@email.com');
     expect(user?.password).to.be.undefined;
-    expect(!!jwt.verify(token, jwtSecret)).to.be.true;
+    expect(!!Token.verify(token)).to.be.true;
 
     (User.findOne as sinon.SinonStub).restore();
     (bcrypt.compareSync as sinon.SinonStub).restore();
