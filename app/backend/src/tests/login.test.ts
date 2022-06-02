@@ -117,10 +117,11 @@ describe('[GET] /login/validate', () => {
     const token = Token.create(user);
     sinon.stub(User, 'findOne').resolves(user as User);
 
-    const { body: role } = await chai.request(app)
+    const { status, body: role } = await chai.request(app)
       .get('/login/validate')
       .set('Authorization', token);
 
+    expect(status).to.equal(200);
     expect(role).to.equal(user.role);
     (User.findOne as sinon.SinonStub).restore();
   });
