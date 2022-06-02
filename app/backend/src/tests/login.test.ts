@@ -105,3 +105,22 @@ describe('[POST] /login', () => {
     (User.findOne as sinon.SinonStub).restore();
   });
 });
+
+describe('[GET] /login/validate', () => {
+  it('should return the user role', async () => {
+    const user = {
+      id: 1,
+      username: 'Admin',
+      role: 'admin',
+      email: 'admin@email.com'
+    };
+    const token = Token.create(user);
+    sinon.stub(User, 'findOne').resolves(user as User);
+
+    const { body: role } = await chai.request(app)
+      .get('/login/validate')
+      .set('Authorization', token);
+
+    expect(role).to.equal(user.role);
+  });
+});

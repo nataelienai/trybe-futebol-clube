@@ -30,4 +30,14 @@ export default class UserService {
 
     return { user: responseUser, token };
   }
+
+  async validateLogin(token: string) {
+    const { id } = Token.verify(token);
+    const { role } = await this.usersRepository.findByPk(
+      id,
+      { attributes: ['role'] },
+    ) as User;
+
+    return role;
+  }
 }

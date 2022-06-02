@@ -19,4 +19,10 @@ export default class UserController {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   }
+
+  async validateLogin(req: Request, res: Response) {
+    const token = req.headers.authorization;
+    const role = await this.service.validateLogin(token as string);
+    res.status(200).json(role);
+  }
 }

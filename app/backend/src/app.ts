@@ -24,6 +24,7 @@ class App {
 
   private setupRoutes(): void {
     this.app.post('/login', (req, res) => this.userController.login(req, res));
+    this.app.get('/login/validate', (req, res) => this.userController.validateLogin(req, res));
   }
 
   public start(port: string | number): void {
