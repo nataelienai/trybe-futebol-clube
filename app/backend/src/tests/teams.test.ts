@@ -33,6 +33,7 @@ describe('[GET] /teams', () => {
 
     expect(teams).to.deep.equal(teamsMock);
     expect(status).to.equal(200);
+    expect((Team.findAll as sinon.SinonStub).called).to.be.true;
 
     (Team.findAll as sinon.SinonStub).restore();
   });

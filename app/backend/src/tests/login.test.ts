@@ -15,61 +15,77 @@ const { expect } = chai;
 
 describe('[POST] /login', () => {
   it('should return the user details and a token', async () => {
-    sinon.stub(User, 'findOne').resolves({
+    const userMock = {
       id: 1,
       username: 'Admin',
       role: 'admin',
       email: 'admin@email.com',
       password: '123456'
-    } as User);
+    };
 
+    sinon.stub(User, 'findOne').resolves(userMock as User);
     sinon.stub(bcrypt, 'compareSync').returns(true);
 
     const { body: { user, token } } = await chai.request(app)
       .post('/login')
-      .send({ email: 'admin@email.com', password: '123456' });
+      .send({ email: userMock.email, password: userMock.password });
 
-    expect(user?.id).to.equal(1);
-    expect(user?.username).to.equal('Admin');
-    expect(user?.role).to.equal('admin');
-    expect(user?.email).to.equal('admin@email.com');
+    expect(user?.id).to.equal(userMock.id);
+    expect(user?.username).to.equal(userMock.username);
+    expect(user?.role).to.equal(userMock.role);
+    expect(user?.email).to.equal(userMock.email);
     expect(user?.password).to.be.undefined;
     expect(!!Token.verify(token)).to.be.true;
+    expect(
+      (User.findOne as sinon.SinonStub).calledWith({ where: { email: userMock.email }})
+    ).to.be.true;
+    expect(
+      (bcrypt.compareSync as sinon.SinonStub).calledWith(userMock.password)
+    ).to.be.true;
 
     (User.findOne as sinon.SinonStub).restore();
     (bcrypt.compareSync as sinon.SinonStub).restore();
   });
 
   it('should return error if email is invalid', async () => {
+    const credentials = { email: 'user@email.com', password: '123456' };
+
     sinon.stub(User, 'findOne').resolves(null);
 
     const { status, body: { message } } = await chai.request(app)
       .post('/login')
-      .send({ email: 'user@email.com', password: '123456' });
+      .send(credentials);
 
     expect(status).to.equal(401);
     expect(message).to.equal('Incorrect email or password');
+    expect(
+      (User.findOne as sinon.SinonStub).calledWith({ where: { email: credentials.email }})
+    ).to.be.true;
 
     (User.findOne as sinon.SinonStub).restore();
   });
 
   it('should return error if password is invalid', async () => {
-    sinon.stub(User, 'findOne').resolves({
+    const userMock = {
       id: 1,
       username: 'Admin',
       role: 'admin',
       email: 'admin@email.com',
       password: '123456'
-    } as User);
+    };
 
+    sinon.stub(User, 'findOne').resolves(userMock as User);
     sinon.stub(bcrypt, 'compareSync').returns(false);
 
     const { status, body: { message } } = await chai.request(app)
       .post('/login')
-      .send({ email: 'admin@email.com', password: '12345678' });
+      .send({ email: userMock.email, password: 'invalid_password' });
 
     expect(status).to.equal(401);
     expect(message).to.equal('Incorrect email or password');
+    expect(
+      (User.findOne as sinon.SinonStub).calledWith({ where: { email: userMock.email } })
+    ).to.be.true;
 
     (User.findOne as sinon.SinonStub).restore();
     (bcrypt.compareSync as sinon.SinonStub).restore();
@@ -115,7 +131,7 @@ describe('[GET] /login/validate', () => {
       email: 'admin@email.com'
     };
     const token = Token.create(user);
-    sinon.stub(User, 'findOne').resolves(user as User);
+    sinon.stub(User, 'findByPk').resolves(user as User);
 
     const { status, body: role } = await chai.request(app)
       .get('/login/validate')
@@ -123,6 +139,8 @@ describe('[GET] /login/validate', () => {
 
     expect(status).to.equal(200);
     expect(role).to.equal(user.role);
-    (User.findOne as sinon.SinonStub).restore();
+    expect((User.findByPk as sinon.SinonStub).calledWith(user.id)).to.be.true;
+
+    (User.findByPk as sinon.SinonStub).restore();
   });
 });
