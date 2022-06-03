@@ -27,6 +27,7 @@ class App {
   private setupRoutes(): void {
     this.app.post('/login', (req, res) => this.userController.login(req, res));
     this.app.get('/login/validate', (req, res) => this.userController.validateLogin(req, res));
+    this.app.get('/teams/:id', (req, res) => this.teamController.findById(req, res));
     this.app.get('/teams', (req, res) => this.teamController.findAll(req, res));
   }
 

@@ -4,7 +4,10 @@ export default class TeamService {
   private teamsRepository = Team;
 
   async findAll() {
-    const teams = await this.teamsRepository.findAll();
-    return teams;
+    return this.teamsRepository.findAll();
+  }
+
+  async findById(id: number) {
+    return this.teamsRepository.findByPk(id);
   }
 }
