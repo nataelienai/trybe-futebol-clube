@@ -32,6 +32,7 @@ class App {
     this.app.get('/teams/:id', (req, res) => this.teamController.findById(req, res));
     this.app.get('/teams', (req, res) => this.teamController.findAll(req, res));
     this.app.get('/matches', (req, res) => this.matchController.findAll(req, res));
+    this.app.post('/matches', (req, res) => this.matchController.create(req, res));
   }
 
   public start(port: string | number): void {

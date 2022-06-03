@@ -167,3 +167,28 @@ describe('[GET] /matches', () => {
     (Match.findAll as sinon.SinonStub).restore();
   });
 });
+
+describe('[POST] /matches', () => {
+  it('should create a match', async () => {
+    const match = {
+      homeTeam: 16,
+      awayTeam: 8,
+      homeTeamGoals: 2,
+      awayTeamGoals: 2,
+      inProgress: true
+    };
+    const createdMatchMock = { id: 1, ...match };
+
+    sinon.stub(Match, 'create').resolves(createdMatchMock as Match);
+
+    const { status, body: createdMatch } = await chai.request(app)
+      .post('/matches')
+      .send(match);
+    
+    expect(status).to.equal(201);
+    expect(createdMatch).to.deep.equal(createdMatchMock);
+    expect((Match.create as sinon.SinonStub).calledWith(match)).to.be.true;
+
+    (Match.create as sinon.SinonStub).restore();
+  });
+});
