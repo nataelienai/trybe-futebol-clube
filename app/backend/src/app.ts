@@ -1,4 +1,5 @@
 import * as express from 'express';
+import MatchController from './controllers/match-controller';
 import TeamController from './controllers/team-controller';
 import UserController from './controllers/user-controller';
 
@@ -6,6 +7,7 @@ class App {
   public app: express.Express = express();
   private userController = new UserController();
   private teamController = new TeamController();
+  private matchController = new MatchController();
 
   constructor() {
     this.config();
@@ -29,6 +31,7 @@ class App {
     this.app.get('/login/validate', (req, res) => this.userController.validateLogin(req, res));
     this.app.get('/teams/:id', (req, res) => this.teamController.findById(req, res));
     this.app.get('/teams', (req, res) => this.teamController.findAll(req, res));
+    this.app.get('/matches', (req, res) => this.matchController.findAll(req, res));
   }
 
   public start(port: string | number): void {
