@@ -28,4 +28,8 @@ export default class MatchService {
   async create(match: CreateMatchProps) {
     return this.matchesRepository.create(match);
   }
+
+  async setAsFinished(id: number) {
+    this.matchesRepository.update({ inProgress: false }, { where: { id } });
+  }
 }

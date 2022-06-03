@@ -19,4 +19,9 @@ export default class MatchController {
     const match = await this.service.create(req.body);
     res.status(201).json(match);
   }
+
+  async setAsFinished(req: Request, res: Response) {
+    await this.service.setAsFinished(Number(req.params.id));
+    res.status(200).json({ message: 'Finished' });
+  }
 }

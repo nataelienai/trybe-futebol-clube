@@ -192,3 +192,22 @@ describe('[POST] /matches', () => {
     (Match.create as sinon.SinonStub).restore();
   });
 });
+
+describe('[PATCH] /matches/:id/finish', () => {
+  it('should set the match specified by id to finished', async () => {
+    sinon.stub(Match, 'update').resolves();
+
+    const matchId = 1;
+    const { status, body: { message } } = await chai.request(app)
+      .patch(`/matches/${matchId}/finish`);
+    
+    expect(status).to.equal(200);
+    expect(message).to.equal('Finished');
+    expect((Match.update as sinon.SinonStub).calledWith(
+      { inProgress: false },
+      { where: { id: matchId } }
+    )).to.be.true;
+
+    (Match.update as sinon.SinonStub).restore();
+  });
+});
