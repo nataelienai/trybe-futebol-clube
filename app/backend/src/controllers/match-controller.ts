@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import BaseError from '../errors/base-error';
 import MatchService from '../services/match-service';
 
 export default class MatchController {
@@ -16,8 +17,16 @@ export default class MatchController {
   }
 
   async create(req: Request, res: Response) {
-    const match = await this.service.create(req.body);
-    res.status(201).json(match);
+    try {
+      const match = await this.service.create(req.body);
+      res.status(201).json(match);
+    } catch (err) {
+      if (err instanceof BaseError) {
+        res.status(err.statusCode).json({ message: err.message });
+        return;
+      }
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
   }
 
   async setAsFinished(req: Request, res: Response) {

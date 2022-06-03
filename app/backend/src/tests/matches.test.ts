@@ -191,6 +191,21 @@ describe('[POST] /matches', () => {
 
     (Match.create as sinon.SinonStub).restore();
   });
+
+  it('should return error if both teams in the match are equal', async () => {
+    const { status, body: { message } } = await chai.request(app)
+      .post('/matches')
+      .send({
+        homeTeam: 8,
+        awayTeam: 8,
+        homeTeamGoals: 2,
+        awayTeamGoals: 2,
+        inProgress: true
+      });
+    
+    expect(status).to.equal(401);
+    expect(message).to.equal('It is not possible to create a match with two equal teams');
+  })
 });
 
 describe('[PATCH] /matches/:id/finish', () => {
