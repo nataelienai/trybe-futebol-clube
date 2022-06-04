@@ -15,6 +15,11 @@ interface CreateMatchProps {
   inProgress: boolean;
 }
 
+interface UpdateMatchProps {
+  homeTeamGoals: number;
+  awayTeamGoals: number;
+}
+
 export default class MatchService {
   private matchesRepository = Match;
 
@@ -45,6 +50,10 @@ export default class MatchService {
   }
 
   async setAsFinished(id: number) {
-    this.matchesRepository.update({ inProgress: false }, { where: { id } });
+    await this.matchesRepository.update({ inProgress: false }, { where: { id } });
+  }
+
+  async update(id: number, match: UpdateMatchProps) {
+    await this.matchesRepository.update(match, { where: { id } });
   }
 }

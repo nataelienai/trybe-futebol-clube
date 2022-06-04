@@ -260,6 +260,29 @@ describe('[POST] /matches', () => {
   });
 });
 
+describe('[PATCH] /matches/:id', () => {
+  it('should update the match specified by id', async () => {
+    sinon.stub(Match, 'update').resolves();
+
+    const matchId = 1;
+    const { status, body: { message } } = await chai.request(app)
+      .patch(`/matches/${matchId}`)
+      .send({
+        homeTeamGoals: 3,
+        awayTeamGoals: 1,
+      });
+    
+    expect(status).to.equal(200);
+    expect(message).to.equal('Updated');
+    expect((Match.update as sinon.SinonStub).calledWith(
+      { homeTeamGoals: 3, awayTeamGoals: 1 },
+      { where: { id: matchId } }
+    )).to.be.true;
+
+    (Match.update as sinon.SinonStub).restore();
+  });
+});
+
 describe('[PATCH] /matches/:id/finish', () => {
   it('should set the match specified by id to finished', async () => {
     sinon.stub(Match, 'update').resolves();

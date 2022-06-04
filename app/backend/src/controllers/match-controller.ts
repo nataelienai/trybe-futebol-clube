@@ -33,4 +33,9 @@ export default class MatchController {
     await this.service.setAsFinished(Number(req.params.id));
     res.status(200).json({ message: 'Finished' });
   }
+
+  async update(req: Request, res: Response) {
+    await this.service.update(Number(req.params.id), req.body);
+    res.status(200).json({ message: 'Updated' });
+  }
 }
