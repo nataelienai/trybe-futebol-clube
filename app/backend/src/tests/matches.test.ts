@@ -240,6 +240,24 @@ describe('[POST] /matches', () => {
 
     (Team.findByPk as sinon.SinonStub).restore();
   });
+
+  it('should return error if something unexpected occurred', async () => {
+    sinon.stub(Team, 'findByPk').rejects(new Error('Unexpected error'));
+
+    const { status } = await chai.request(app)
+      .post('/matches')
+      .send({
+        homeTeam: 8,
+        awayTeam: 9,
+        homeTeamGoals: 2,
+        awayTeamGoals: 2,
+        inProgress: true
+      });
+
+    expect(status).to.equal(500);
+
+    (Team.findByPk as sinon.SinonStub).restore();
+  });
 });
 
 describe('[PATCH] /matches/:id/finish', () => {
