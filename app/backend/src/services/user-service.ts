@@ -2,7 +2,7 @@ import * as bcrypt from 'bcryptjs';
 
 import User from '../database/models/user';
 import Token from '../util/token';
-import UnauthorizedError from '../errors/unauthorized-error';
+import UnauthorizedError from '../errors/unauthorized';
 import BadRequestError from '../errors/bad-request';
 
 export default class UserService {

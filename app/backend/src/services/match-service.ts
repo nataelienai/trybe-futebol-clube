@@ -1,6 +1,6 @@
 import Team from '../database/models/team';
 import Match from '../database/models/match';
-import UnauthorizedError from '../errors/unauthorized-error';
+import UnauthorizedError from '../errors/unauthorized';
 import NotFoundError from '../errors/not-found';
 
 interface MatchFilters {
