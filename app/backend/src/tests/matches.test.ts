@@ -170,14 +170,28 @@ describe('[GET] /matches', () => {
 
 describe('[POST] /matches', () => {
   it('should create a match', async () => {
+    const teamsMock = [
+      {
+        id: 1,
+        teamName: 'Santos',
+      },
+      {
+        id: 2,
+        teamName: 'São Paulo',
+      }
+    ];
     const match = {
-      homeTeam: 16,
-      awayTeam: 8,
+      homeTeam: teamsMock[0].id,
+      awayTeam: teamsMock[1].id,
       homeTeamGoals: 2,
       awayTeamGoals: 2,
       inProgress: true
     };
     const createdMatchMock = { id: 1, ...match };
+
+    sinon.stub(Team, 'findByPk')
+      .withArgs(teamsMock[0].id).resolves(teamsMock[0] as Team)
+      .withArgs(teamsMock[1].id).resolves(teamsMock[1] as Team);
 
     sinon.stub(Match, 'create').resolves(createdMatchMock as Match);
 
@@ -190,6 +204,7 @@ describe('[POST] /matches', () => {
     expect((Match.create as sinon.SinonStub).calledWith(match)).to.be.true;
 
     (Match.create as sinon.SinonStub).restore();
+    (Team.findByPk as sinon.SinonStub).restore();
   });
 
   it('should return error if both teams in the match are equal', async () => {
@@ -202,10 +217,29 @@ describe('[POST] /matches', () => {
         awayTeamGoals: 2,
         inProgress: true
       });
-    
+
     expect(status).to.equal(401);
     expect(message).to.equal('It is not possible to create a match with two equal teams');
-  })
+  });
+
+  it('should return error if at least one of the teams does not exist', async () => {
+    sinon.stub(Team, 'findByPk').resolves(null);
+
+    const { status, body: { message } } = await chai.request(app)
+      .post('/matches')
+      .send({
+        homeTeam: 8,
+        awayTeam: 9,
+        homeTeamGoals: 2,
+        awayTeamGoals: 2,
+        inProgress: true
+      });
+
+    expect(status).to.equal(404);
+    expect(message).to.equal('There is no team with such id!');
+
+    (Team.findByPk as sinon.SinonStub).restore();
+  });
 });
 
 describe('[PATCH] /matches/:id/finish', () => {
