@@ -1,4 +1,5 @@
 import * as express from 'express';
+import LeaderboardController from './controllers/leaderboard-controller';
 import MatchController from './controllers/match-controller';
 import TeamController from './controllers/team-controller';
 import UserController from './controllers/user-controller';
@@ -8,6 +9,7 @@ class App {
   private userController = new UserController();
   private teamController = new TeamController();
   private matchController = new MatchController();
+  private leaderboardController = new LeaderboardController();
 
   constructor() {
     this.config();
@@ -38,6 +40,9 @@ class App {
     ));
     this.app.patch('/matches/:id/finish', (req, res) => (
       this.matchController.setAsFinished(req, res)
+    ));
+    this.app.get('/leaderboard/home', (req, res) => (
+      this.leaderboardController.getHomeTeamsLeaderboard(req, res)
     ));
   }
 
