@@ -1,15 +1,8 @@
 import * as express from 'express';
-import LeaderboardController from './controllers/leaderboard-controller';
-import MatchController from './controllers/match-controller';
-import TeamController from './controllers/team-controller';
-import UserController from './controllers/user-controller';
+import routes from './routes';
 
 class App {
   public app: express.Express = express();
-  private userController = new UserController();
-  private teamController = new TeamController();
-  private matchController = new MatchController();
-  private leaderboardController = new LeaderboardController();
 
   constructor() {
     this.config();
@@ -29,24 +22,7 @@ class App {
   }
 
   private setupRoutes(): void {
-    this.app.post('/login', (req, res) => this.userController.login(req, res));
-    this.app.get('/login/validate', (req, res) => this.userController.validateLogin(req, res));
-    this.app.get('/teams/:id', (req, res) => this.teamController.findById(req, res));
-    this.app.get('/teams', (req, res) => this.teamController.findAll(req, res));
-    this.app.get('/matches', (req, res) => this.matchController.findAll(req, res));
-    this.app.post('/matches', (req, res) => this.matchController.create(req, res));
-    this.app.patch('/matches/:id', (req, res) => (
-      this.matchController.update(req, res)
-    ));
-    this.app.patch('/matches/:id/finish', (req, res) => (
-      this.matchController.setAsFinished(req, res)
-    ));
-    this.app.get('/leaderboard/home', (req, res) => (
-      this.leaderboardController.getHomeTeamsLeaderboard(req, res)
-    ));
-    this.app.get('/leaderboard/away', (req, res) => (
-      this.leaderboardController.getAwayTeamsLeaderboard(req, res)
-    ));
+    this.app.use(routes);
   }
 
   public start(port: string | number): void {
