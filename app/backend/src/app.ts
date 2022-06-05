@@ -44,6 +44,9 @@ class App {
     this.app.get('/leaderboard/home', (req, res) => (
       this.leaderboardController.getHomeTeamsLeaderboard(req, res)
     ));
+    this.app.get('/leaderboard/away', (req, res) => (
+      this.leaderboardController.getAwayTeamsLeaderboard(req, res)
+    ));
   }
 
   public start(port: string | number): void {

@@ -1,12 +1,7 @@
 import Team from '../database/models/team';
 import Match from '../database/models/match';
 
-interface TeamStats {
-  totalGames: number;
-  totalPoints: number;
-  efficiency: number;
-  goalsBalance: number;
-  name: string;
+interface StatsForAllMatches {
   goalsFavor: number;
   goalsOwn: number;
   totalVictories: number;
@@ -14,7 +9,17 @@ interface TeamStats {
   totalDraws: number;
 }
 
-function getHomeTeamStats(team: Team, matches: Match[]) {
+interface OverallTeamStats extends StatsForAllMatches {
+  name: string;
+  totalGames: number;
+  totalPoints: number;
+  goalsBalance: number;
+  efficiency: number;
+}
+
+type GetStatsFunction = (team: Team, match: Match[]) => StatsForAllMatches;
+
+function getHomeTeamStats(team: Team, matches: Match[]): StatsForAllMatches {
   return matches
     .filter((match) => match.homeTeam === team.id)
     .reduce((
@@ -35,7 +40,28 @@ function getHomeTeamStats(team: Team, matches: Match[]) {
     });
 }
 
-function compareTeams(t1: TeamStats, t2: TeamStats) {
+function getAwayTeamStats(team: Team, matches: Match[]): StatsForAllMatches {
+  return matches
+    .filter((match) => match.awayTeam === team.id)
+    .reduce((
+      { goalsFavor, goalsOwn, totalDraws, totalLosses, totalVictories },
+      { homeTeamGoals, awayTeamGoals },
+    ) => ({
+      goalsFavor: goalsFavor + awayTeamGoals,
+      goalsOwn: goalsOwn + homeTeamGoals,
+      totalVictories: awayTeamGoals > homeTeamGoals ? totalVictories + 1 : totalVictories,
+      totalLosses: awayTeamGoals < homeTeamGoals ? totalLosses + 1 : totalLosses,
+      totalDraws: awayTeamGoals === homeTeamGoals ? totalDraws + 1 : totalDraws,
+    }), {
+      goalsFavor: 0,
+      goalsOwn: 0,
+      totalVictories: 0,
+      totalLosses: 0,
+      totalDraws: 0,
+    });
+}
+
+function compareTeams(t1: OverallTeamStats, t2: OverallTeamStats) {
   const totalPointsDifference = t2.totalPoints - t1.totalPoints;
   if (totalPointsDifference !== 0) return totalPointsDifference;
 
@@ -54,21 +80,24 @@ function compareTeams(t1: TeamStats, t2: TeamStats) {
   return 0;
 }
 
-function buildLeaderboard(teams: Team[], matches: Match[]) {
+function buildLeaderboard(
+  teams: Team[],
+  matches: Match[],
+  getStats: GetStatsFunction,
+): OverallTeamStats[] {
   return teams.map((team) => {
-    const stats = getHomeTeamStats(team, matches);
+    const stats = getStats(team, matches);
 
     const totalGames = stats.totalDraws + stats.totalVictories + stats.totalLosses;
     const totalPoints = stats.totalVictories * 3 + stats.totalDraws;
     const efficiency = Number(((totalPoints / (totalGames * 3)) * 100).toFixed(2));
-    const goalsBalance = stats.goalsFavor - stats.goalsOwn;
 
     return {
       ...stats,
       totalGames,
       totalPoints,
       efficiency,
-      goalsBalance,
+      goalsBalance: stats.goalsFavor - stats.goalsOwn,
       name: team.teamName,
     };
   }).sort(compareTeams);
@@ -84,6 +113,15 @@ export default class LeaderboardService {
       this.matchesRepository.findAll({ where: { inProgress: false } }),
     ]);
 
-    return buildLeaderboard(teams, matches);
+    return buildLeaderboard(teams, matches, getHomeTeamStats);
+  }
+
+  async getAwayTeamsLeaderboard() {
+    const [teams, matches] = await Promise.all([
+      this.teamsRepository.findAll(),
+      this.matchesRepository.findAll({ where: { inProgress: false } }),
+    ]);
+
+    return buildLeaderboard(teams, matches, getAwayTeamStats);
   }
 }
