@@ -61,6 +61,18 @@ function getAwayTeamStats(team: Team, matches: Match[]): StatsForAllMatches {
     });
 }
 
+function getTeamStats(team: Team, matches: Match[]): StatsForAllMatches {
+  const statsAsHomeTeam = getHomeTeamStats(team, matches);
+  const statsAsAwayTeam = getAwayTeamStats(team, matches);
+  return {
+    goalsFavor: statsAsHomeTeam.goalsFavor + statsAsAwayTeam.goalsFavor,
+    goalsOwn: statsAsHomeTeam.goalsOwn + statsAsAwayTeam.goalsOwn,
+    totalVictories: statsAsHomeTeam.totalVictories + statsAsAwayTeam.totalVictories,
+    totalLosses: statsAsHomeTeam.totalLosses + statsAsAwayTeam.totalLosses,
+    totalDraws: statsAsHomeTeam.totalDraws + statsAsAwayTeam.totalDraws,
+  };
+}
+
 function compareTeams(t1: OverallTeamStats, t2: OverallTeamStats) {
   const totalPointsDifference = t2.totalPoints - t1.totalPoints;
   if (totalPointsDifference !== 0) return totalPointsDifference;
@@ -106,6 +118,15 @@ function buildLeaderboard(
 export default class LeaderboardService {
   private matchesRepository = Match;
   private teamsRepository = Team;
+
+  async getLeaderboard() {
+    const [teams, matches] = await Promise.all([
+      this.teamsRepository.findAll(),
+      this.matchesRepository.findAll({ where: { inProgress: false } }),
+    ]);
+
+    return buildLeaderboard(teams, matches, getTeamStats);
+  }
 
   async getHomeTeamsLeaderboard() {
     const [teams, matches] = await Promise.all([

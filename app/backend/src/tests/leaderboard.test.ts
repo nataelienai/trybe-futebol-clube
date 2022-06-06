@@ -77,6 +77,65 @@ const matchesMock = [
   },
 ];
 
+describe('[GET] /leaderboard', () => {
+  it('should get the leaderboard for the teams', async () => {
+    const expectedLeaderboard = [
+      {
+        name: 'Santos',
+        totalPoints: 8,
+        totalGames: 4,
+        totalVictories: 2,
+        totalDraws: 2,
+        totalLosses: 0,
+        goalsFavor: 6,
+        goalsOwn: 3,
+        goalsBalance: 3,
+        efficiency: 66.67,
+      },
+      {
+        name: 'Palmeiras',
+        totalPoints: 5,
+        totalGames: 4,
+        totalVictories: 1,
+        totalDraws: 2,
+        totalLosses: 1,
+        goalsFavor: 4,
+        goalsOwn: 3,
+        goalsBalance: 1,
+        efficiency: 41.67,
+      },
+      {
+        name: 'Corinthians',
+        totalPoints: 2,
+        totalGames: 4,
+        totalVictories: 0,
+        totalDraws: 2,
+        totalLosses: 2,
+        goalsFavor: 3,
+        goalsOwn: 7,
+        goalsBalance: -4,
+        efficiency: 16.67,
+      },
+    ];
+
+    sinon.stub(Team, 'findAll').resolves(teamsMock as Team[]);
+    sinon.stub(Match, 'findAll').resolves(matchesMock as Match[]);
+
+    const { status, body: receivedLeaderboard } = await chai
+      .request(app)
+      .get('/leaderboard');
+
+    expect(status).to.equal(200);
+    expect(receivedLeaderboard).to.deep.equal(expectedLeaderboard);
+    expect((Match.findAll as sinon.SinonStub).calledWith({
+      where: { inProgress: false }
+    })).to.be.true;
+
+    (Team.findAll as sinon.SinonStub).restore();
+    (Match.findAll as sinon.SinonStub).restore();
+  });
+});
+
 describe('[GET] /leaderboard/home', () => {
   it('should get the leaderboard for the teams when they played at home', async () => {
     const expectedLeaderboard = [

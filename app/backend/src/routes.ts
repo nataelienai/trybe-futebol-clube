@@ -22,6 +22,9 @@ router.post('/matches', (req, res) => matchController.create(req, res));
 router.patch('/matches/:id', (req, res) => matchController.update(req, res));
 router.patch('/matches/:id/finish', (req, res) => matchController.setAsFinished(req, res));
 
+router.get('/leaderboard', (req, res) => (
+  leaderboardController.getLeaderboard(req, res)
+));
 router.get('/leaderboard/home', (req, res) => (
   leaderboardController.getHomeTeamsLeaderboard(req, res)
 ));
