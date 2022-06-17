@@ -2,7 +2,7 @@
 
 Trybe Futebol Clube é um website de partidas e classificações de futebol, onde é possível buscar, cadastrar e editar partidas e verificar as classificações geral, como mandante e como visitante de cada time.
 
-Neste projeto, foi construído uma API com as regras de negócio da aplicação e que é consumida pelo Front-End já provido pela [Trybe](https://www.betrybe.com/). Além disso, a aplicação está dockerizada e o código foi desenvolvido utilizando o método de Desenvolvimento Orientado a Testes, ou TDD (Test Driven Development).
+Neste projeto, foi construído uma API com as regras de negócio da aplicação e que é consumida pelo Front-End provido pela [Trybe](https://www.betrybe.com/). Além disso, a aplicação está dockerizada e o código foi desenvolvido utilizando o método de Desenvolvimento Orientado a Testes, ou TDD (Test Driven Development).
 
 ## Tecnologias utilizadas
 
